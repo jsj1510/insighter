@@ -6,17 +6,21 @@ export const Container = styled.div`
 `;
 
 export const Table = styled.table`
-  width: 530px;
-  min-height: 750px;
+  width: 480px;
+  min-height: 500px;
   display: table;
   justify-content: center;
   flex-direction: column;
   border-collapse: collapse;
   table-layout: fixed;
+  margin-top: 20px;
 `;
 
 export const Tbody = styled.tbody`
   vertical-align: top;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 export const THead = styled.thead`
@@ -25,18 +29,20 @@ export const THead = styled.thead`
 
 export const Tr = styled.tr`
   width: 100%;
-  height: 100px;
   vertical-align: middle;
+  height: 50px;
 `;
 
 export const Th = styled.th`
   width: 20%;
-  height: 100px;
   vertical-align: middle;
 `;
 export const Td = styled.td`
   width: 20%;
   text-align: center;
-  height: 100px;
   vertical-align: middle;
+  height: 50px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;

@@ -10,25 +10,32 @@
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/lab": "^5.0.0-alpha.170",
+    "@mui/material": "^5.15.19",
     "@tanstack/react-query": "^5.40.0",
     "@types/axios": "^0.14.0",
     "@types/date-fns": "^2.6.0",
+    "@types/json-server": "^0.14.7",
     "axios": "^1.7.2",
     "date-fns": "^3.6.0",
     "next": "^14.0.3",
     "react": "^18.3.1",
+    "react-datepicker": "^6.9.0",
     "react-dom": "^18.3.1",
+    "react-time-picker": "^7.0.0",
     "styled-components": "^6.1.11"
   },
   "devDependencies": {
-    "@types/node": "^20.12.13",
+    "@types/node": "^20.13.0",
     "@types/react": "^18.3.3",
+    "@types/react-datepicker": "^6.2.0",
     "@types/react-dom": "^18",
     "@types/styled-components": "^5.1.34",
     "babel-plugin-styled-components": "^2.1.4",
     "eslint": "^8",
     "eslint-config-next": "14.0.3",
-    "typescript": "^5"
+    "typescript": "^5.4.5"
   },
   "msw": {
     "workerDirectory": [

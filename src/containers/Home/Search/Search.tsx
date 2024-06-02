@@ -13,7 +13,7 @@ const Search: React.FC<SearchProps> = ({
   performSearch,
   handleKeyPress,
 }) => (
-  <div>
+  <div style={{ margin: 20 }}>
     <input
       type="text"
       value={searchQuery}
