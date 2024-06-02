@@ -4,8 +4,8 @@ import { parseISO, format } from "date-fns";
 import * as S from "./emotion";
 
 interface TableProps {
-  data: Array<{
-    eventName: string;
+  data?: Array<{
+    name: string;
     date: string;
     hour: string;
     location: string;
@@ -40,10 +40,10 @@ const InfinityScrollBoard: React.FC<TableProps> = ({ data }) => (
       </S.THead>
 
       <S.Tbody>
-        {data.map((item) => (
+        {data?.map((item) => (
           <S.Tr key={item.id}>
             <S.Td>{format(parseISO(item.date), "yyyy-MM-dd")}</S.Td>
-            <S.Td>{item.eventName}</S.Td>
+            <S.Td>{item.name}</S.Td>
             <S.Td>{item.hour}</S.Td>
             <S.Td>{item.location}</S.Td>
             <S.Td>{item.explanation}</S.Td>
