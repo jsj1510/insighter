@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { parseISO, format } from "date-fns";
-
 import { useRouter } from "next/navigation";
 
 import * as Home from "@/containers/Home";
@@ -155,9 +154,7 @@ const HomePage = () => {
         handleKeyPress={handleKeyPress}
       />
 
-      <Home.InfinityScrollBoard
-        data={searchQuery ? searchResults : filterData}
-      />
+      <Home.Table data={searchQuery ? searchResults : filterData} />
     </div>
   );
 };
