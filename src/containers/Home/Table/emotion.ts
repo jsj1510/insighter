@@ -6,7 +6,7 @@ export const Container = styled.div`
 `;
 
 export const Table = styled.table`
-  width: 480px;
+  width: 800px;
   min-height: 500px;
   display: table;
   justify-content: center;
