@@ -1,14 +1,15 @@
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import axios from "axios";
-import DatePicker from "react-datepicker";
+import { useQuery } from "@tanstack/react-query";
 
-import EventForm from "@/containers/Post/Form/Form";
+import Form from "@/containers/Post/Form/Form";
+import { eventsDetail, putEvent } from "@/apis";
 
 interface EventData {
   name: string;
   date: Date;
-  time: string;
+  hour: string;
   location: string;
   explanation: string;
 }
@@ -16,12 +17,31 @@ interface EventData {
 const PostPage = () => {
   const router = useRouter();
 
+  const id = Array.isArray(router.query.id)
+    ? router.query.id[0]
+    : router.query.id;
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["events", id],
+    queryFn: async () => {
+      if (!id) return null;
+      return eventsDetail(id);
+    },
+  });
+
   const handleSubmit = async (eventData: EventData) => {
-    const response = await axios.post("/events", eventData);
-    console.log(response);
-    router.push("/");
+    if (id) {
+      putEvent(id, eventData);
+    } else {
+      await axios.post("/events", eventData);
+    }
+
+    router.replace("/");
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div
       style={{
@@ -31,7 +51,7 @@ const PostPage = () => {
         flexDirection: "column",
       }}
     >
-      <EventForm onSubmit={handleSubmit} />
+      <Form onSubmit={handleSubmit} initialEvent={data?.[0]} />
     </div>
   );
 };

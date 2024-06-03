@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { parseISO, format } from "date-fns";
-import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import * as Home from "@/containers/Home";
-import { fetchEvents } from "@/apis";
+import { fetchEvents, deleteEvent } from "@/apis";
 import { Pagination } from "@/components/Design/Pagination";
+import { Modal } from "@/components/Design/Modal";
 
 interface DataItem {
   name: string;
@@ -13,7 +14,7 @@ interface DataItem {
   hour: string;
   location: string;
   explanation: string;
-  id: number;
+  id: string;
 }
 
 interface PaginatedResponse {
@@ -41,9 +42,20 @@ const HomePage = () => {
 
   const [page, setPage] = useState<number>(1);
 
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<DataItem>();
+
   const { data } = useQuery<PaginatedResponse[]>({
-    queryKey: ["events", page, startDate, endDate, searchQuery, sortOrder],
-    queryFn: () => fetchEvents(page),
+    queryKey: ["events", page],
+    queryFn: () => fetchEvents(page, sortOrder),
+    refetchOnMount: true,
+  });
+
+  const deleteEventMutation = useMutation({
+    mutationKey: ["events", page],
+    mutationFn: async (id: string) => {
+      await deleteEvent(id);
+    },
   });
 
   const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +89,6 @@ const HomePage = () => {
 
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    // 입력된 값이 10자리(yyyy-MM-dd 형식)보다 작을 때만 endDate 변경
     if (inputValue.length <= 10) {
       setEndDate(inputValue);
     }
@@ -90,7 +101,7 @@ const HomePage = () => {
   const filterData = data?.data
     .filter((item: DataItem) => {
       if (!startDate && !endDate) return true;
-      const itemDate = parseISO(item.date);
+      const itemDate = parseISO(item.date.slice(0, 10));
       const start = startDate ? parseISO(startDate) : null;
       const end = endDate ? parseISO(endDate) : null;
 
@@ -101,14 +112,27 @@ const HomePage = () => {
       } else if (end) {
         return itemDate <= end;
       }
-
       return false;
     })
     .sort((a: DataItem, b: DataItem) => {
-      const dateA = parseISO(a.date).getTime();
-      const dateB = parseISO(b.date).getTime();
+      const dateA = new Date(a.date.slice(0, 10)).getTime();
+      const dateB = new Date(b.date.slice(0, 10)).getTime();
       return sortOrder === "ASC" ? dateA - dateB : dateB - dateA;
     });
+
+  const handleEdit = (id: string) => {
+    router.push(`/post?id=${id}`);
+  };
+
+  const handleDelete = async (id: string) => {
+    setShowModal((prev) => !prev);
+    await deleteEventMutation.mutateAsync(id);
+  };
+
+  const toggleModal = (item: DataItem) => {
+    setSelectedItem(() => item);
+    setShowModal((prev) => !prev);
+  };
 
   return (
     <div
@@ -135,15 +159,30 @@ const HomePage = () => {
       />
       <button onClick={() => router.push("/post")}>이벤트 생성</button>
 
-      <Home.Table data={searchQuery ? searchResults : filterData} />
+      <Home.Table
+        data={searchQuery ? searchResults : filterData}
+        handleEdit={handleEdit}
+        toggleModal={toggleModal}
+      />
       <Pagination
         defaultPage={page}
         count={data?.last}
         onChange={(_, page) => {
-          console.log(page);
           setPage(page);
         }}
       />
+
+      <Modal isOpen={showModal}>
+        <p>{`"${selectedItem?.name}" 이벤트를 삭제하시겠습니까?`}</p>
+        <div>
+          <button onClick={() => handleDelete(selectedItem?.id ?? "")}>
+            삭제
+          </button>
+          <button onClick={() => selectedItem && toggleModal(selectedItem)}>
+            취소
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };

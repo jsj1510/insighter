@@ -9,7 +9,7 @@ import "react-clock/dist/Clock.css";
 interface EventData {
   name: string;
   date: Date;
-  time: string;
+  hour: string;
   location: string;
   explanation: string;
 }
@@ -19,41 +19,24 @@ interface EventFormProps {
   initialEvent?: EventData;
 }
 
-const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialEvent }) => {
+const Form: React.FC<EventFormProps> = ({ onSubmit, initialEvent }) => {
   const [event, setEvent] = useState<EventData>({
     name: initialEvent?.name || "",
-    date: initialEvent?.date || new Date(),
-    time: initialEvent?.time || "00:00",
+    date: initialEvent?.date ? new Date(initialEvent.date) : new Date(),
+    hour: initialEvent?.hour || "00:00",
     location: initialEvent?.location || "",
     explanation: initialEvent?.explanation || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     onSubmit(event);
   };
 
   const handleChange = (key: keyof EventData, value: string | Date | null) => {
     if (value !== null) {
-      setEvent((prevEvent: any) => {
-        if (key === "date" && value instanceof Date) {
-          return {
-            ...prevEvent,
-            [key]: value.toISOString().split("T")[0], // 날짜를 "YYYY-MM-DD" 형식으로 저장
-          };
-        } else if (key === "time" && typeof value === "string") {
-          return {
-            ...prevEvent,
-            [key]: value,
-          };
-        } else if (typeof value === "string") {
-          return {
-            ...prevEvent,
-            [key]: value,
-          };
-        }
-        return prevEvent;
-      });
+      setEvent((prevEvent) => ({ ...prevEvent, [key]: value }));
     }
   };
 
@@ -95,8 +78,8 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialEvent }) => {
       >
         <label>시간:</label>
         <TimePicker
-          value={event.time}
-          onChange={(time) => handleChange("time", time)}
+          value={event.hour}
+          onChange={(hour) => handleChange("hour", hour)}
         />
       </div>
       <div
@@ -126,9 +109,9 @@ const EventForm: React.FC<EventFormProps> = ({ onSubmit, initialEvent }) => {
           onChange={(e) => handleChange("explanation", e.target.value)}
         />
       </div>
-      <button type="submit">등록</button>
+      <button type="submit">{initialEvent ? "수정" : "등록"}</button>
     </form>
   );
 };
 
-export default EventForm;
+export default Form;
