@@ -45,7 +45,7 @@ const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<DataItem>();
 
-  const { data } = useQuery<PaginatedResponse[]>({
+  const { data } = useQuery({
     queryKey: ["events", page, sortOrder],
     queryFn: () => fetchEvents(page, sortOrder),
     refetchOnMount: true,
