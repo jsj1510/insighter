@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { parseISO, format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 import * as Home from "@/containers/Home";
+import { fetchEvents } from "@/apis";
+import { Pagination } from "@/components/Design/Pagination";
 
 interface DataItem {
-  eventName: string;
+  name: string;
   date: string;
   hour: string;
   location: string;
@@ -13,59 +16,35 @@ interface DataItem {
   id: number;
 }
 
-const data: DataItem[] = [
-  {
-    eventName: "안녕하세요 1",
-    date: "2024-05-01",
-    hour: "09:00",
-    location: "Location 1",
-    explanation: "안녕하세요 1",
-    id: 1,
-  },
-  {
-    eventName: "감사합니다 2",
-    date: "2024-05-02",
-    hour: "10:00",
-    location: "Location 2",
-    explanation: "안녕하세요 2",
-    id: 2,
-  },
-  {
-    eventName: "고마워요 3",
-    date: "2024-05-03",
-    hour: "11:00",
-    location: "Location 3",
-    explanation: "안녕하세요 감사합니다 3",
-    id: 3,
-  },
-  {
-    eventName: "고맙습니다 4",
-    date: "2024-05-04",
-    hour: "12:00",
-    location: "Location 4",
-    explanation: "안녕하세요 고맙습니다 4",
-    id: 4,
-  },
-  {
-    eventName: "다음에봐요 5",
-    date: "2024-05-05",
-    hour: "13:00",
-    location: "Location 5",
-    explanation: "안녕하세요 5",
-    id: 5,
-  },
-];
+interface PaginatedResponse {
+  data: DataItem[];
+  first: number;
+  items: number;
+  last: number;
+  next: number | null;
+  pages: number;
+  prev: number | null;
+}
 
 const HomePage = () => {
   const router = useRouter();
 
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [startDate, setStartDate] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("ASC");
+  const [startDate, setStartDate] = useState<string>(
+    format(new Date(), "1900-01-01")
+  );
   const [endDate, setEndDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<DataItem[]>([]);
+
+  const [page, setPage] = useState<number>(1);
+
+  const { data } = useQuery<PaginatedResponse[]>({
+    queryKey: ["events", page, startDate, endDate, searchQuery, sortOrder],
+    queryFn: () => fetchEvents(page),
+  });
 
   const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
@@ -77,9 +56,10 @@ const HomePage = () => {
   };
 
   const performSearch = () => {
-    const filteredData = filterData.filter((item) =>
-      item.eventName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredData =
+      filterData?.filter((item: any) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ) ?? [];
     setSearchResults(filteredData);
   };
 
@@ -104,11 +84,11 @@ const HomePage = () => {
   };
 
   const handleSort = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    setSortOrder(sortOrder === "ASC" ? "DESC" : "ASC");
   };
 
-  const filterData = data
-    .filter((item) => {
+  const filterData = data?.data
+    .filter((item: DataItem) => {
       if (!startDate && !endDate) return true;
       const itemDate = parseISO(item.date);
       const start = startDate ? parseISO(startDate) : null;
@@ -124,10 +104,10 @@ const HomePage = () => {
 
       return false;
     })
-    .sort((a, b) => {
+    .sort((a: DataItem, b: DataItem) => {
       const dateA = parseISO(a.date).getTime();
       const dateB = parseISO(b.date).getTime();
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      return sortOrder === "ASC" ? dateA - dateB : dateB - dateA;
     });
 
   return (
@@ -153,8 +133,17 @@ const HomePage = () => {
         performSearch={performSearch}
         handleKeyPress={handleKeyPress}
       />
+      <button onClick={() => router.push("/post")}>이벤트 생성</button>
 
       <Home.Table data={searchQuery ? searchResults : filterData} />
+      <Pagination
+        defaultPage={page}
+        count={data?.last}
+        onChange={(_, page) => {
+          console.log(page);
+          setPage(page);
+        }}
+      />
     </div>
   );
 };

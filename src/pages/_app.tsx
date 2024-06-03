@@ -1,6 +1,7 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 import "@/styles/globals.css";
 
@@ -13,6 +14,8 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+axios.defaults.baseURL = "http://localhost:3001";
 
 export default function App({
   Component,
