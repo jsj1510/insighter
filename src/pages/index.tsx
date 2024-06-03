@@ -30,7 +30,7 @@ interface PaginatedResponse {
 const HomePage = () => {
   const router = useRouter();
 
-  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("ASC");
+  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
   const [startDate, setStartDate] = useState<string>(
     format(new Date(), "1900-01-01")
   );
@@ -96,6 +96,7 @@ const HomePage = () => {
 
   const handleSort = () => {
     setSortOrder(sortOrder === "ASC" ? "DESC" : "ASC");
+    setPage(1);
   };
 
   const filterData = data?.data

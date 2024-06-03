@@ -12,7 +12,7 @@ export const fetchEvents = async (page: number, order: string) => {
   const response = await axios.get("/events", {
     params: {
       _page: page,
-      _sort: order == "ASC" ? "-date" : "date",
+      _sort: order == "ASC" ? "date" : "-date",
     },
   });
   return response.data;

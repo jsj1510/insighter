@@ -4,7 +4,7 @@
  * Copyright (c) 2023 Your Company
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 
 interface IPaginationProps {
   count: number;
@@ -26,6 +26,10 @@ export default function Pagination({
 
     return arr;
   }, [props.count, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(defaultPage);
+  }, [defaultPage]);
 
   return (
     <div
